@@ -1,4 +1,4 @@
-from util import hook
+from util import hook, ircformat
 import os
 import re
 import json
@@ -81,18 +81,18 @@ def adduser(inp, bot=None, notice=None):
         user = inp[0]
         targetgroup = inp[1]
     except IndexError:
-        notice("the group must be specified")
+        notice((ircformat.err("the group must be specified"))
         return None
     if not re.search('.+!.+@.+', user):
-        notice("the user must be in the form of \"nick!user@host\"")
+        notice(ircformat.err("the user must be in the form of \"nick!user@host\""))
         return None
     try:
         users = permissions[targetgroup]["users"]
     except KeyError:
-        notice("no such group as {}".format(targetgroup))
+        notice(ircformat.err("no such group as {}".format(targetgroup)))
         return None
     if user in users:
-        notice("{} is already in {}".format(user, targetgroup))
+        notice(ircformat.err("{} is already in {}".format(user, targetgroup)))
         return None
 
     users.append(user)
@@ -168,7 +168,7 @@ def cycle(inp, conn=None, chan=None, notice=None):
 def nick(inp, notice=None, conn=None):
     """nick <nick> -- Changes the bots nickname to <nick>."""
     if not re.match("^[A-Za-z0-9_|.-\]\[]*$", inp.lower()):
-        notice("Invalid username!")
+        notice(ircformat.err("Invalid username!"))
         return
     notice("Attempting to change nick to \"{}\"...".format(inp))
     conn.set_nick(inp)
