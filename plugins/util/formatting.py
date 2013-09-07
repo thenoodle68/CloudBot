@@ -51,7 +51,8 @@ def raw(format_string):
             if text in curstate['add']:
                 curstate['add'].remove(text)
         states.append(curstate)  # Add this state to the list of states to be processed.
-    print pprint.pprint(states)
+    if __name__ == "__main__":
+        print pprint.pprint(states)
     for x in states[::-1]:  # Apply formatting from the end
         state = ""
         if x['col']:  # Does the current state require colour formatting?
