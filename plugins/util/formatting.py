@@ -18,52 +18,49 @@ def raw(format_string):
                      'blue': '\x0312',
                      'pink': '\x0313',
                      'gray': '\x0314',
-                     'lgray': '\x0315',},
+                     'lgray': '\x0315', },  # Colours are separate because the text can only have one of them at a time.
              'style': {'b': '\x02',
-                       'clear': '\x0f'},
-             'sym': {'[point]': '\x07'},
-             'text': {'[url]': 'http://'}}
-    final = {}
-    for x in stuff:
-        final.update(stuff[x])
+                       'clear': '\x0f'},  # These are states that can be toggled.
+             'sym': {'[point]': '\x07'},  # I'll add these back at some point
+             'text': {'[url]': 'http://'}}  # See above
 
-    states = [{'col': "", 'add': [], 'cancel': [], 'pos': (0, 0)}]
-    tags = re.finditer(r"\[/?\w+\]", format_string)
+    states = [{'col': "", 'add': [], 'cancel': [], 'pos': (0, 0)}]  # A vanilla state.
+    tags = re.finditer(r"\[/?\w+\]", format_string)  # Finds all instances of [x] and [/x] that are one word.
     for x in tags:
         curstate = dict(states[-1])
-        text = x.group()[1:-1]
+        text = x.group()[1:-1]  # Take out the brackets
         end = 0
         curstate['pos'] = x.span()
-        if text[0] == "/":
+        if text[0] == "/":  # check if the tag is a closing one
             end = 1
             text = text[1:]
-        if text in stuff['col'] and end == 0:
+        if text in stuff['col'] and end == 0:  # Opening colour tag
             curstate['col'] = text
-        elif text in stuff['col'] and end == 1:
-            for st in states[::-1]:
+        elif text in stuff['col'] and end == 1:  # Closing colour tag
+            for st in states[::-1]:  # Find what colour was set before
                 if st['col'] != text:
                     curstate['col'] = text
         elif end == 0:
-            curstate['add'].append(text)
-            if text in curstate['cancel']:
+            curstate['add'].append(text)  # Add the tag to the list of active tags
+            if text in curstate['cancel']:  # Remove it from the cancel list
                 curstate['cancel'].remove(text)
-        elif end == 1 and text in curstate['add']:
+        elif end == 1 and text in curstate['add']:  # Remove it from the active list
             curstate['cancel'].append(text)
             if text in curstate['add']:
                 curstate['add'].remove(text)
-        states.append(curstate)
+        states.append(curstate)  # Add this state to the list of states to be processed.
 
-    for x in states[::-1]:
+    for x in states[::-1]:  # Apply formatting from the end
         state = ""
-        if x['col']:
+        if x['col']:  # Does the current state require colour formatting?
             state += stuff['col'][x['col']]
-        for y in x['add']:
+        else:
+            state += '\x0f'  # We can only use this code because other formatting is applied after this point.
+        for y in x['add']:  
             state += stuff['style'][y]
         for y in x['cancel']:
             state += stuff['style'][y]
-        format_string = format_string[:x['pos'][0]] + state + format_string[x['pos'][1]:]
-        #for x in final:
-    #    format_string = format_string.replace(x, final[x])
+        format_string = format_string[:x['pos'][0]] + state + format_string[x['pos'][1]:]  # Should probably regex.
     return format_string
 
 
