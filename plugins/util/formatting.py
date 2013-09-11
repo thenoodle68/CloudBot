@@ -25,11 +25,12 @@ def raw(format_string):
              'sym': {'[point]': '\x07'},  # I'll add these back at some point
              'text': {'[url]': 'http://'}}  # See above
 
-    states = [{'col': "", 'add': [], 'cancel': [], 'pos': (0, 0)}]  # A vanilla state.
+    states = [{'col': "", 'add': [], 'cancel': [], 'ncancel': [], 'pos': (0, 0)}]  # A vanilla state.
     tags = re.finditer(r"\[/?\w+\]", format_string)  # Finds all instances of [x] and [/x] that are one word.
     for x in tags:
         curstate = dict(states[-1])
-        curstate['cancel'] = []
+        curstate['cancel'] = curstate['ncancel']
+        curstate['ncancel'] = []
         text = x.group()[1:-1]  # Take out the brackets
         end = 0
         curstate['pos'] = x.span()
