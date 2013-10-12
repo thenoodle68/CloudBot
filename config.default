@@ -44,6 +44,10 @@
     "moderators": {
       "perms": ["addfactoid", "delfactoid", "ignore"],
       "users": ["examplec!user@example.com"]
+    },
+    "trusted": {
+      "perms": ["addfactoid", "delfactoid"],
+      "users": ["exampled!user@example.com"]
     }
   },
   "plugins":
